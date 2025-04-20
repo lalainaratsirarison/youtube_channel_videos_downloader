@@ -30,29 +30,30 @@ def get_all_videos(channel_url):
 
     contents_container = driver.find_element(By.ID, "contents")
     contents = contents_container.find_elements(By.ID, "video-title-link")
-    videos_list = set()
+    videos_list = []
     for content in contents:
-        videos_list.add({
+        videos_list.append({
             "title": content.get_attribute("title"),
             "link": content.get_attribute("href")
         })
         
     driver.quit()
+    return videos_list
 
 
 def print_videos(videos):
     for i, video in enumerate(videos):
-        print(f"{i + 1} - {video.title}\n")
+        print(f"{i + 1} - {video['title']}\n")
 
 
 def download(videos):
     video_count = 1
     for video in videos:
-        yt = YouTube(f"https://https://www.youtube.com/watch?v={video.link}")
+        yt = YouTube(f"https://https://www.youtube.com/watch?v={video['link']}")
         print(f"({video_count + 1} / {len(videos)}) - {yt.title}")
         stream = yt.streams.get_highest_resolution()
         try:
-            print(f"{video.title}\nDownloading...")
+            print(f"{video['title']}\nDownloading...")
             stream.download(output_path="/videos")
             print("Download complete")
         except:
@@ -78,3 +79,4 @@ def split_input(user_input, choices):
         else:
             result.append(choices[int(part) - 1])
     return result
+
