@@ -7,7 +7,7 @@ import time
 from pytube import YouTube
 
 
-def scrap_it(channel_url):
+def get_all_videos(channel_url):
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument("--start-maximized")
