@@ -3,12 +3,14 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
+from settings import *
 import time
 import sys
 import shutil
 import os
 import yt_dlp
 import platform
+
 
 
 def show_ffmpeg_install_guide():
@@ -61,8 +63,6 @@ def progress_hook(d):
 
 
 def download(videos):
-    output_folder = "./videos"
-    video_res = 720
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
         print(f"Directory created : {output_folder}")
@@ -76,7 +76,7 @@ def download(videos):
             ydl_opts = {
                 'format': f'bestvideo[height<={video_res}]+bestaudio/best[height<={video_res}]',
                 'outtmpl': f'{output_folder}/%(title)s.%(ext)s',  
-                'merge_output_format': 'mp4',
+                'merge_output_format': f'{video_ext}',
                 'progress_hooks': [progress_hook],
                 'noplaylist': True
             }
@@ -105,7 +105,6 @@ def get_all_videos(channel_url):
         
         new_height = driver.execute_script("return document.documentElement.scrollHeight")
         if prev_height == new_height:
-            print(new_height)
             break
         prev_height = new_height
 
@@ -143,6 +142,8 @@ def split_input(user_input, choices):
                 if i > len(choices):
                     break
                 result.append(choices[i - 1])
+        elif part == "*":
+            result.extend(choices)
         else:
             result.append(choices[int(part) - 1])
     return result
