@@ -4,7 +4,88 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 import time
-from pytube import YouTube
+import sys
+import shutil
+import os
+import yt_dlp
+import platform
+
+
+def show_ffmpeg_install_guide():
+    os_name = platform.system()
+
+    print("FFmpeg is required.")
+    print("This is how to install it :")
+
+    if os_name == "Windows":
+        print("- Go to https://www.gyan.dev/ffmpeg/builds/")
+        print("- Download the 'release full' version")
+        print("- Extract the ZIP file")
+        print("- Add the 'bin' folder to your system PATH environment variable")
+    elif os_name == "Linux":
+        print("- Run: sudo apt install ffmpeg  (for Debian/Ubuntu)")
+        print("- Or:  sudo pacman -S ffmpeg     (for Arch)")
+    elif os_name == "Darwin":
+        print("- Run: brew install ffmpeg")
+    else:
+        print("- Go to https://ffmpeg.org/download.html and follow the installation instructions for your system")
+
+    sys.exit(1)
+
+
+def progress_hook(d):
+    if d['status'] == 'downloading':
+        total = d.get('total_bytes') or d.get('total_bytes_estimate')
+        downloaded = d.get('downloaded_bytes', 0)
+        speed = d.get('speed', 0)
+        eta = d.get('eta', 0)
+
+        if total:
+            percent = downloaded / total * 100
+            bar_length = 40
+            filled_length = int(bar_length * percent // 100)
+            bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+            speed_kb = speed / 1024 if speed else 0
+            eta_str = time.strftime('%H:%M:%S', time.gmtime(eta)) if eta else "??:??"
+
+            print(
+                f"\r|{bar}| {percent:5.1f}% "
+                f"{downloaded / (1024 * 1024):.1f}MB / {total / (1024 * 1024):.1f}MB "
+                f"{speed_kb:.1f}KB/s ETA: {eta_str}",
+                end=""
+            )
+
+    elif d['status'] == 'finished':
+        print("\nDownload completed !")
+
+
+def download(videos):
+    output_folder = "./videos"
+    video_res = 720
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+        print(f"Directory created : {output_folder}")
+
+    for i, video in enumerate(videos):
+        try:
+            video_url = video['link']
+            print(f"\n({i + 1} / {len(videos)}) - {video['title']}")
+            print(f"Downloading... {video_url}")
+
+            ydl_opts = {
+                'format': f'bestvideo[height<={video_res}]+bestaudio/best[height<={video_res}]',
+                'outtmpl': f'{output_folder}/%(title)s.%(ext)s',  
+                'merge_output_format': 'mp4',
+                'progress_hooks': [progress_hook],
+                'noplaylist': True
+            }
+
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([video_url])
+
+        except Exception as e:
+            print(f"\nAn error occurred: {e}\n")
 
 
 def get_all_videos(channel_url):
@@ -44,20 +125,6 @@ def get_all_videos(channel_url):
 def print_videos(videos):
     for i, video in enumerate(videos):
         print(f"{i + 1} - {video['title']}\n")
-
-
-def download(videos):
-    video_count = 1
-    for video in videos:
-        yt = YouTube(f"https://https://www.youtube.com/watch?v={video['link']}")
-        print(f"({video_count + 1} / {len(videos)}) - {yt.title}")
-        stream = yt.streams.get_highest_resolution()
-        try:
-            print(f"{video['title']}\nDownloading...")
-            stream.download(output_path="/videos")
-            print("Download complete")
-        except:
-            print("An error occured while downloading")
 
 
 def split_input(user_input, choices):

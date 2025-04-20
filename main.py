@@ -1,10 +1,14 @@
 from utils import *
 
+
+if shutil.which("ffmpeg") is None:
+    show_ffmpeg_install_guide()
+
 channel_url = input("Paste the channel URL: ")
 channel_url = channel_url.strip()
 videos = get_all_videos(channel_url)
 print_videos(videos)
-user_choices = split_input(input("Choose the videos you want to download (1,2,3... or 1-5 etc.): "), videos)
+user_choices = split_input(input("Choose videos you want to download (1,2,3... or 1-5 etc.): "), videos)
 download(user_choices)
 print("Thank you for using this program!")
 print("Have a nice day!")
