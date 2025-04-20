@@ -6,7 +6,7 @@ This project is a Python script that allows downloading videos from a YouTube ch
 
 - Automatic retrieval of videos from a YouTube channel.
 - Selection of videos to download via a simple user interface.
-- Download videos with the best available quality (up to a defined resolution).
+- Download videos with the best video quality (up to a defined resolution).
 
 ## Prerequisites
 
@@ -24,3 +24,9 @@ Before starting, make sure you have installed the following:
 
    ```bash
    pip install -r requirements.txt
+   
+## Note
+- By default the output folder is under the folder named videos in the current directory.
+- By default the quality of the video is 720p(HD).
+- You can change the quality of the video and the output path in the settings.py
+
