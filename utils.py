@@ -33,34 +33,7 @@ def show_ffmpeg_install_guide():
         print("- Go to https://ffmpeg.org/download.html and follow the installation instructions for your system")
 
     sys.exit(1)
-
-
-def progress_hook(d):
-    if d['status'] == 'downloading':
-        total = d.get('total_bytes') or d.get('total_bytes_estimate')
-        downloaded = d.get('downloaded_bytes', 0)
-        speed = d.get('speed', 0)
-        eta = d.get('eta', 0)
-
-        if total:
-            percent = downloaded / total * 100
-            bar_length = 40
-            filled_length = int(bar_length * percent // 100)
-            bar = '█' * filled_length + '-' * (bar_length - filled_length)
-
-            speed_kb = speed / 1024 if speed else 0
-            eta_str = time.strftime('%H:%M:%S', time.gmtime(eta)) if eta else "??:??"
-
-            print(
-                f"\r|{bar}| {percent:5.1f}% "
-                f"{downloaded / (1024 * 1024):.1f}MB / {total / (1024 * 1024):.1f}MB "
-                f"{speed_kb:.1f}KB/s ETA: {eta_str}",
-                end=""
-            )
-
-    elif d['status'] == 'finished':
-        print("\nDownload completed !")
-
+        
 
 def download(videos):
     if not os.path.exists(output_folder):
@@ -74,11 +47,12 @@ def download(videos):
             print(f"Downloading... {video_url}")
 
             ydl_opts = {
-                'format': f'bestvideo[height<={video_res}]+bestaudio/best[height<={video_res}]',
-                'outtmpl': f'{output_folder}/%(title)s.%(ext)s',  
-                'merge_output_format': f'{video_ext}',
-                'progress_hooks': [progress_hook],
-                'noplaylist': True
+                'format': f'bv*[height<={video_res}]+ba[ext=m4a]/b[height<={video_res}]',
+                'merge_output_format': 'mp4',
+                'outtmpl': 'videos/%(title)s.%(ext)s',
+                'noplaylist': True,
+                'quiet': False,
+                'verbose': True,
             }
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
